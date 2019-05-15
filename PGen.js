@@ -8,8 +8,13 @@ grammar.addModifiers(tracery.baseEngModifiers);
 
 class Stanza {
     constructor() {
-        this.verses = [[],[]];
         this.sentences = [];
+        this.verses = [[],[]];
+
+        // this.universyll = ['bla', 'tel', 'man', 'xome'];
+        this.universyll = ['ju', 'lia', 'ma', 'lin', 'ska'];
+        // this.JJsyll = ['thy', 'ish', '_ish', '_ious', '_al', 'xome'];
+        this.JJsyll = ['thy', 'ish', 'mious', 'pal', 'xome'];
     }
 
     initStanza() {
@@ -17,19 +22,21 @@ class Stanza {
 
         //just the 1st sentence for now
         //ltr: checking rhyme compatibility
-        var found = false;
-        while(!found) {
-            this.sentences[0] = grammar.flatten('#ES#');
-            if (this.sentenceSplit(0)) {
-                //limit check
-                console.log('VALID. ');
-                found = this.syllLimitCheck(0);
-                // found = true; //-----------------------------------------temp!!
-            } else {
-                //continue
-                console.log('INVALID. ');
+        for (let i = 0; i < 2; i++) {
+            var found = false;
+            while(!found) {
+                this.sentences[i] = grammar.flatten('#ES#');
+                if (this.sentenceSplit(i)) {
+                    found = this.syllLimitCheck(i);
+                } else {
+                    continue
+                }
             }
         }
+        this.getSyllDist(0);
+        this.distSyll(0);
+
+        this.replaceBlanks(0);
     }
 
     initVerses() {
@@ -37,20 +44,24 @@ class Stanza {
             for (var j = 0; j < 2; j++) {
                 this.verses[i][j] = {
                     verseStr: '',
+                    verseStrFill: this.verseStr, //-----------hm
                     metre: 0,
+                    toDistLen: 0,
+                    syllDist: [],
                     words: function() {
                         return this.verseStr.match(/\w+/g);
                     },
                     blanks: function() {
                         return this.verseStr.match(/_\w+/g);
-                    }
+                    },
+                    fills: []
                 }
             }
         }
         this.verses[0][0].metre = 8;
         this.verses[0][1].metre = 8;
         this.verses[1][0].metre = 8;
-        this.verses[1][0].metre = 6;
+        this.verses[1][1].metre = 6;
     }
 
     sentenceSplit(senID) {
@@ -61,8 +72,6 @@ class Stanza {
             var min = this.getMinSyll(split);
             min_syll.push(min);
         });
-
-        console.log(min_syll);
 
         if (min_syll.length < 2) {
             //no possible split
@@ -82,12 +91,13 @@ class Stanza {
     getMinSyll(verse) {
         //takes verse str, returns num of minSyll
         var wordList = verse.match(/\w+/g); //arr of words
-        // var minTwo = RegExp(/_JJ|_Vpast/g); //words that consist of at least 2 syllables
+        var minTwo = RegExp(/_JJ|_Vpast/); //words that consist of at least 2 syllables
+        //removed global flag in regexp
 
         var minSyllCount = 0;
 
         wordList.forEach(word => {
-            var minTwo = RegExp(/_JJ|_Vpast/g);
+            // var minTwo = RegExp(/_JJ|_Vpast/g);
             if(minTwo.test(word)) {
                 minSyllCount += 2;
             } else {
@@ -123,12 +133,13 @@ class Stanza {
     syllLimitCheck(senID) {
         //checking syllable capacity
         //if syll to be filled > capacity return false
-        for (let i = 0; i < this.verses[senID].length; i++) {
+        for (var i = 0; i < this.verses[senID].length; i++) {
             var verse = this.verses[senID][i];
 
             var capacity = verse.blanks().length * 3; //max 3 syllables/word
             var filledLen = verse.words().length - verse.blanks().length; //all words - blanks
             var toDistLen = verse.metre - filledLen;
+            verse.toDistLen = toDistLen;
 
             var minSyll = this.getMinSyll(verse.verseStr); //min amount of syllable it takes to fill the blanks
 
@@ -138,6 +149,90 @@ class Stanza {
         }
         return true;
     }
+
+    //change to 'getSyllDist'?
+    getSyllDist(senID) {
+        //distribution of syllabes across blanks
+        var verse = this.verses[senID][0];
+        var blanks = this.verses[senID][0].blanks();
+        var re = RegExp(/_JJ|_Vpast/); //min 2 syll -should be in Stanza class?
+
+        //min dist-------------------
+        for (var i=0; i<blanks.length; i++) {
+            if (re.test(blanks[i])) {
+                verse.syllDist[i] = 2;
+            } else {
+                verse.syllDist[i] = 1;
+            }
+        }
+
+        var syllsum = verse.syllDist.reduce((acc, val) => acc + val);
+        verse.toDistLen -= syllsum; //minus distributed syllables
+
+        //rand dist------------------
+        while (verse.toDistLen>0) {
+            var randomID = Math.floor(Math.random() * blanks.length);
+            if (verse.syllDist[randomID]<3) {
+                verse.syllDist[randomID]++;
+                verse.toDistLen--;
+            }
+        }
+    }
+
+    distSyll(senID) {
+        //for each blank
+        //add universyll (un until the last?)
+        var verse = this.verses[senID][0];
+        var blanks = verse.blanks();
+        var fills = verse.fills;
+
+        for (var i=0; i<blanks.length; i++) { //each blank
+            var word = '';
+            for (var j=0; j<verse.syllDist[i]-1; j++) { //each syllable in blank
+                var syll = this.getRandomSyll(this.universyll);
+                word = word.concat('', syll);
+            }
+            var last = '';
+            switch(blanks[i]) { //make separate
+                case '_JJ':
+                last = this.getRandomSyll(this.JJsyll);
+                break;
+
+                default:
+                last = this.getRandomSyll(this.universyll);
+            }
+            word = word.concat('', last);
+            fills[i] = word;
+        }
+        console.log(fills);
+        console.log(verse.syllDist);
+    }
+
+    getRandomSyll(syllList) {
+        var random = Math.floor(Math.random() * syllList.length);
+        var syll = syllList[random];
+
+        return syll;
+    }
+
+    replaceBlanks(senID) {
+        var verse = this.verses[senID][0];
+        var string = verse.verseStr;
+        var fills = verse.fills;
+        var strFill = verse.verseStrFill;
+        console.log('FILLS: '+fills);
+        
+        var i=0;
+        var re = RegExp(/_\w+/g);
+        strFill = string.replace(re, getSyll);
+        
+        
+        function getSyll(match) {
+            var word = fills[i++];
+            return word;
+        }
+        console.log(strFill);
+    }
 }
 
 var s = new Stanza();
@@ -146,7 +241,9 @@ s.initStanza();
 for (var verse in s.verses[0]) {
     console.log(s.verses[0][verse].verseStr);
 }
-
+for (var verse in s.verses[1]) {
+    console.log(s.verses[1][verse].verseStr);
+}
 //0     00
 //1     01
 //2     10
