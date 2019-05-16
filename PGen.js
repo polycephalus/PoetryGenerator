@@ -15,6 +15,7 @@ class Stanza {
         this.universyll = ['ju', 'lia', 'ma', 'lin', 'ska'];
         // this.JJsyll = ['thy', 'ish', '_ish', '_ious', '_al', 'xome'];
         this.JJsyll = ['thy', 'ish', 'mious', 'pal', 'xome'];
+        this.Vpastsyll = ['_ed'];
     }
 
     initStanza() {
@@ -91,7 +92,7 @@ class Stanza {
     getMinSyll(verse) {
         //takes verse str, returns num of minSyll
         var wordList = verse.match(/\w+/g); //arr of words
-        var minTwo = RegExp(/_JJ|_Vpast/); //words that consist of at least 2 syllables
+        var minTwo = RegExp(/_JJ|_Vinf/); //words that consist of at least 2 syllables
         //removed global flag in regexp
 
         var minSyllCount = 0;
@@ -155,7 +156,7 @@ class Stanza {
         //distribution of syllabes across blanks
         var verse = this.verses[senID][0];
         var blanks = this.verses[senID][0].blanks();
-        var re = RegExp(/_JJ|_Vpast/); //min 2 syll -should be in Stanza class?
+        var re = RegExp(/_JJ|_Vinf/); //min 2 syll -should be in Stanza class?
 
         //min dist-------------------
         for (var i=0; i<blanks.length; i++) {
@@ -198,6 +199,10 @@ class Stanza {
                 last = this.getRandomSyll(this.JJsyll);
                 break;
 
+                case '_Vpast':
+                last = this.getRandomSyll(this.Vpastsyll);
+                break;
+
                 default:
                 last = this.getRandomSyll(this.universyll);
             }
@@ -208,6 +213,7 @@ class Stanza {
         console.log(verse.syllDist);
     }
 
+    //rename to getRand ---------------------------------------------------------!!
     getRandomSyll(syllList) {
         var random = Math.floor(Math.random() * syllList.length);
         var syll = syllList[random];
@@ -254,3 +260,37 @@ for (var verse in s.verses[1]) {
 //     console.log('str:\t '+verses[verse].verseStr);
 //     console.log('\tblanks:\t '+verses[verse].blanks());
 // }
+var vowels = ['a', 'e', 'i', 'o', 'u'];
+var consonants = ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v', 'ch', 'sh', 'kv']; //no c, k...'gr', 'pr', 'st', 'str'
+var protosyll = ['_cl', '_c_vng', '_cill', '_cetch', '_c_vrn', '_c_vrv'];
+var primsyll = ['out', 'de', 're', 'un', 'pre', '', '', '']; //-----antepenultimate
+
+function getRand(chararr) {
+    var random = Math.floor(Math.random() * chararr.length);
+    return chararr[random];
+}
+
+function getSyll() {
+    var randP = getRand(protosyll);
+    var newWord = '';
+
+    newWord = randP.replace(/_\w/g, function(match){
+        if (/_c/.test(match)) {
+            return getRand(consonants);
+        } else if (/_v/.test(match)) {
+            return getRand(vowels);
+        }
+    })
+
+    newWord = newWord.concat('', 'ed');
+    newWord = newWord.replace(/^/, getRand(primsyll));
+    return newWord;
+}
+
+var string = 'The dog _Vpast. ';
+
+console.log('');
+for (let i = 0; i < 10; i++) {
+    var pult = string.replace(/_Vpast/, getSyll);
+    console.log('STR: '+pult);
+}
