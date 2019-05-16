@@ -4,6 +4,8 @@ var tracery = require('tracery-grammar');
 var grammar_file = require('./JabberGrammar_test01.json');
 var grammar = tracery.createGrammar(grammar_file);
 
+var word = require('./word'); //alt. use import?
+
 grammar.addModifiers(tracery.baseEngModifiers);
 
 class Stanza {
@@ -233,7 +235,7 @@ class Stanza {
         strFill = string.replace(re, getSyll);
         
         
-        function getSyll(match) {
+        function getSyll() {
             var word = fills[i++];
             return word;
         }
@@ -260,26 +262,39 @@ for (var verse in s.verses[1]) {
 //     console.log('str:\t '+verses[verse].verseStr);
 //     console.log('\tblanks:\t '+verses[verse].blanks());
 // }
-var vowels = ['a', 'e', 'i', 'o', 'u'];
-var consonants = ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v', 'ch', 'sh', 'kv']; //no c, k...'gr', 'pr', 'st', 'str'
-var protosyll = ['_cl', '_c_vng', '_cill', '_cetch', '_c_vrn', '_c_vrv'];
+var vowels = ['a', 'e', 'i', 'o', 'u', 'ui', 'ou'];
+var consonants = ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v', 'ch', 'sh', 'kv', 'sw', 'ph']; //no c, k...'gr', 'pr', 'st', 'str'           
+var idk = ['b', 'f', 'g', 'm', 'p', 's', 'ch', 'sh']; //special _l vowels
+
+var protosyll = ['_al', '_c_vng', '_cill', '_cetch', '_c_vrn', '_c_vrv'];
 var primsyll = ['out', 'de', 're', 'un', 'pre', '', '', '']; //-----antepenultimate
 
-function getRand(chararr) {
-    var random = Math.floor(Math.random() * chararr.length);
-    return chararr[random];
+function getRand(arr) {
+    var random = Math.floor(Math.random() * arr.length);
+    return arr[random];
 }
 
-function getSyll() {
+function getWord() {
     var randP = getRand(protosyll);
     var newWord = '';
 
     newWord = randP.replace(/_\w/g, function(match){
-        if (/_c/.test(match)) {
-            return getRand(consonants);
-        } else if (/_v/.test(match)) {
-            return getRand(vowels);
+        var unit;
+        switch(match) {
+            case '_c':
+            unit = getRand(consonants);
+            break;
+
+            case '_v':
+            unit = getRand(vowels);
+            break;
+
+            case '_a':
+            console.log('-------------------------!!');
+            unit = getRand(idk);
+            break;
         }
+        return unit;
     })
 
     newWord = newWord.concat('', 'ed');
@@ -291,6 +306,9 @@ var string = 'The dog _Vpast. ';
 
 console.log('');
 for (let i = 0; i < 10; i++) {
-    var pult = string.replace(/_Vpast/, getSyll);
+    var pult = string.replace(/_Vpast/, getWord);
     console.log('STR: '+pult);
 }
+
+var newWord = word.word.getWord('_Vpast', 1);
+console.log('\n'+newWord);
