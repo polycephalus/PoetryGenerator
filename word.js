@@ -14,7 +14,6 @@ exports.word = {
 
     //take POS, syllnum
     getWord: function(POS, syllnum) {
-        var self = this; //to access the object
         var newWord = '';
 
         //assemble word from protosyll & pre/suffixes befitting its POS
@@ -34,19 +33,37 @@ exports.word = {
         }
 
         //fill in protosyll-------------------------------------------
-        newWord = newWord.replace(/_\w/g, function(match){
+        // newWord = newWord.replace(/_\w/g, function(match){
+        //     var word = '';
+        //     switch(match) {
+        //         case '_c':
+        //         word = self.getRand(self.consonants);
+        //         break;
+    
+        //         case '_v':
+        //         word = self.getRand(self.vowels);
+        //         break;
+    
+        //         case '_a':
+        //         unit = getRand(self.idk);
+        //         break;
+        //     }
+        //     return word;
+        // });
+
+        newWord = newWord.replace(/_\w/g, match => {
             var word = '';
             switch(match) {
                 case '_c':
-                word = self.getRand(self.consonants);
+                word = this.getRand(this.consonants);
                 break;
     
                 case '_v':
-                word = self.getRand(self.vowels);
+                word = this.getRand(this.vowels);
                 break;
     
                 case '_a':
-                unit = getRand(self.idk);
+                unit = getRand(this.idk);
                 break;
             }
             return word;
