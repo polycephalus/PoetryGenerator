@@ -4,7 +4,8 @@ var tracery = require('tracery-grammar');
 var grammar_file = require('./JabberGrammar_test01.json');
 var grammar = tracery.createGrammar(grammar_file);
 
-var word = require('./word'); //alt. use import?
+// var word = require('./wordo');
+var { Word, NN, Vpast, JJ} = require('./word');
 
 grammar.addModifiers(tracery.baseEngModifiers);
 
@@ -191,29 +192,44 @@ class Stanza {
 
         for (var i=0; i<blanks.length; i++) { //each blank
             var word = '';
-            for (var j=0; j<verse.syllDist[i]-1; j++) { //each syllable in blank
-                var syll = this.getRandomSyll(this.universyll);
-                word = word.concat('', syll);
-            }
-            var last = '';
+            // for (var j=0; j<verse.syllDist[i]-1; j++) { //each syllable in blank
+            //     var syll = this.getRandomSyll(this.universyll);
+            //     word = word.concat('', syll);
+            // }
+            // var last = '';
+            // var w;
             switch(blanks[i]) { //make separate
                 case '_JJ':
-                last = this.getRandomSyll(this.JJsyll);
+                // last = this.getRandomSyll(this.JJsyll);
+                var w = new JJ(verse.syllDist[i]);
+                word = w.concatWord();
+                word = w.fillWord(word); 
                 break;
 
                 case '_Vpast':
-                last = this.getRandomSyll(this.Vpastsyll);
+                var w = new Vpast(verse.syllDist[i]);
+                word = w.concatWord();
+                word = w.fillWord(word); 
+                break;
+
+                case '_NN':
+                var w = new NN(verse.syllDist[i]);
+                word = w.concatWord();
+                word = w.fillWord(word); 
                 break;
 
                 default:
-                last = this.getRandomSyll(this.universyll);
+                word = this.getRandomSyll(this.universyll);
             }
-            word = word.concat('', last);
+            // word = word.concat('', last);
+            
             fills[i] = word;
+
+            console.log(fills);
+            console.log(verse.syllDist);
         }
-        console.log(fills);
-        console.log(verse.syllDist);
     }
+    
 
     //rename to getRand ---------------------------------------------------------!!
     getRandomSyll(syllList) {
@@ -252,63 +268,30 @@ for (var verse in s.verses[0]) {
 for (var verse in s.verses[1]) {
     console.log(s.verses[1][verse].verseStr);
 }
-//0     00
-//1     01
-//2     10
-//3     11
 
-// for (var verse in verses) {
-//     console.log(verse+':\n\tID: '+verses[verse].ID);
-//     console.log('str:\t '+verses[verse].verseStr);
-//     console.log('\tblanks:\t '+verses[verse].blanks());
-// }
-var vowels = ['a', 'e', 'i', 'o', 'u', 'ui', 'ou'];
-var consonants = ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v', 'ch', 'sh', 'kv', 'sw', 'ph']; //no c, k...'gr', 'pr', 'st', 'str'           
-var idk = ['b', 'f', 'g', 'm', 'p', 's', 'ch', 'sh']; //special _l vowels
-
-var protosyll = ['_al', '_c_vng', '_cill', '_cetch', '_c_vrn', '_c_vrv'];
-var primsyll = ['out', 'de', 're', 'un', 'pre', '', '', '']; //-----antepenultimate
-
-function getRand(arr) {
-    var random = Math.floor(Math.random() * arr.length);
-    return arr[random];
-}
-
-function getWord() {
-    var randP = getRand(protosyll);
-    var newWord = '';
-
-    newWord = randP.replace(/_\w/g, function(match){
-        var unit;
-        switch(match) {
-            case '_c':
-            unit = getRand(consonants);
-            break;
-
-            case '_v':
-            unit = getRand(vowels);
-            break;
-
-            case '_a':
-            console.log('-------------------------!!');
-            unit = getRand(idk);
-            break;
-        }
-        return unit;
-    })
-
-    newWord = newWord.concat('', 'ed');
-    newWord = newWord.replace(/^/, getRand(primsyll));
-    return newWord;
-}
-
+//--------------------------------------------------------------
 var string = 'The dog _Vpast. ';
 
-console.log('');
+// console.log('');
+// for (let i = 0; i < 10; i++) {
+//     var pult = string.replace(/_Vpast/, word.word.getWord('_Vpast', 1));
+//     console.log('STR: '+pult);
+// }
+
+// var newWord = word.word.getWord('_Vpast', 1);
+// console.log('\n'+newWord);
+
+// var n = new NN(1);
+// newWord = n.concatWord();
+// newWord = n.fillWord(newWord);
+
+// var v = new Vpast(3);
+var j = new JJ(2);
+
+console.log();
 for (let i = 0; i < 10; i++) {
-    var pult = string.replace(/_Vpast/, getWord);
-    console.log('STR: '+pult);
+    newWord = j.concatWord();
+    newWord = j.fillWord(newWord);
+    console.log('NEW: '+newWord);
 }
 
-var newWord = word.word.getWord('_Vpast', 1);
-console.log('\n'+newWord);

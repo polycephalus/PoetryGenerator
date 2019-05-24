@@ -1,73 +1,101 @@
-exports.word = {
-    vowels: ['a', 'e', 'i', 'o', 'u', 'ui', 'ou'],
-    consonants: ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v', 'ch', 'sh', 'kv', 'sw', 'ph'], //no c, k...'gr', 'pr', 'st', 'str'           
-    idk: ['b', 'f', 'g', 'm', 'p', 's', 'ch', 'sh'], //special _l consonants
+class Word {
+    constructor(syllnum) {
+        this.syllnum = syllnum;
 
-    primsyll: ['out', 'de', 're', 'un', 'pre', '', '', ''],
-    midprotosyll: ['_c_v'],
-    protosyll: ['_al', '_c_vng', '_cill', '_cetch', '_c_vrn', '_c_vrv', '_cas'],
+        this.vowels = ['a', 'e', 'i', 'o', 'u', 'ou'];
+        this.consonants = ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v'];
 
-    getRand: function(arr) {
+        this.digraphs = ['st', 'ch', 'sh', 'ph', 'fr']; //_d
+        this.connectors = ['bb', 'st', 'rw', 'kv', 'sw', 'sc', 'fr', 'fl']; //_c_c
+        this.diultim = ['ck', 'st', 'ch', 'sh', 'ff', 'ph', 'sc', 'gh', 'ff']; //_u
+
+        this.trigraphs = ['rtl'] //_u_c
+
+        this.protosyll = [
+            ['_c_v_u', '_c_vng', '_cill', '_cetch', '_c_vrn'], //wock  
+            ['_v_c', '_c_v'], //er
+            ['_c_v_d'] //jabb
+        ];
+    }
+
+    getRand(arr) {
         var random = Math.floor(Math.random() * arr.length);
         return arr[random];
-    },
+    }
 
-    //take POS, syllnum
-    getWord: function(POS, syllnum) {
-        var newWord = '';
+    concatWord() {
+        var word = ''; //reset
 
-        //assemble word from protosyll & pre/suffixes befitting its POS
-        //switch...
-        switch(POS) {
-            case '_Vpast': //add primsyll if syllnum allows (excl. 3 syll?)
-            // for (var i = 0; i < syllnum; i++) {
-            //     var syll = this.getRand(this.protosyll);
-            //     newWord = newWord.concat('', syll);                                
-            // }
-            var first = this.getRand(this.primsyll);
-            var mid = this.getRand(this.midprotosyll); //no good
-            var last = this.getRand(this.protosyll);
-            
-            newWord = newWord.concat('', first, last, 'ed');
-            break;
+        for (let i = 0; i < this.syllnum; i++) {
+            word = word.replace(/^/, this.getRand(this.protosyll[i]));
         }
+        return word;
+    }
 
-        //fill in protosyll-------------------------------------------
-        // newWord = newWord.replace(/_\w/g, function(match){
-        //     var word = '';
-        //     switch(match) {
-        //         case '_c':
-        //         word = self.getRand(self.consonants);
-        //         break;
-    
-        //         case '_v':
-        //         word = self.getRand(self.vowels);
-        //         break;
-    
-        //         case '_a':
-        //         unit = getRand(self.idk);
-        //         break;
-        //     }
-        //     return word;
-        // });
-
-        newWord = newWord.replace(/_\w/g, match => {
-            var word = '';
+    fillWord(newWord) {
+        //ugly regexp
+        newWord = newWord.replace(/_c_c|_\w/g, match => {
+            var unit = '';
             switch(match) {
+                case '_c_c':
+                unit = this.getRand(this.connectors);
+                break;
+
                 case '_c':
-                word = this.getRand(this.consonants);
+                unit = this.getRand(this.consonants);
                 break;
     
                 case '_v':
-                word = this.getRand(this.vowels);
+                unit = this.getRand(this.vowels);
                 break;
     
-                case '_a':
-                unit = getRand(this.idk);
+                case '_u':
+                unit = this.getRand(this.diultim);
                 break;
+
+                case '_d':
+                unit = this.getRand(this.digraphs);
             }
-            return word;
+            return unit;
         });
         return newWord;
     }
 }
+
+class NN extends Word{
+    constructor(syllnum) {
+        super(syllnum);
+        // this.protosyll = [];
+    }
+}
+
+class Vpast extends Word{
+    constructor(syllnum) {
+        super(syllnum);
+        this.protosyll[1] = ['out', 'de', 're', 'un'];
+    }
+
+    concatWord() {
+        var word = super.concatWord(); //override
+        
+
+        word = word.concat('', 'ed'); //anything else?
+        return word;
+    }
+}
+
+class JJ extends Word {
+    constructor(syllnum) {
+        super(syllnum);
+        this.protosyll[0] = ['_cious', '_dish', '_c_cal', 'xome'];
+        this.protosyll[1] = ['_d_v', '_c_v', '_c_vn'];
+        this.protosyll[2] = ['re', 'un', 'de'];
+    }
+}
+
+module.exports = {
+    Word,
+    NN,
+    Vpast,
+    JJ
+};
