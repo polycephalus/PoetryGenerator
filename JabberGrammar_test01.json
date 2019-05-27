@@ -8,11 +8,15 @@
   "S": [
     "#NP# #VP#",
     "twas #NN#, and #NP# #VP#",
-    "all _JJ were #NP#"
+    "all _JJ were #NPpl#"
   ],
   "NP": [
     "the #NN#",
     "the _JJ #NN#"
+  ],
+  "NPpl": [
+    "the _NNpl", 
+    "the _JJ _NNpl"
   ],
   "NN": [
     "_NN"

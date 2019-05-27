@@ -5,7 +5,7 @@ var grammar_file = require('./JabberGrammar_test01.json');
 var grammar = tracery.createGrammar(grammar_file);
 
 // var word = require('./wordo');
-var { Word, NN, Vpast, JJ} = require('./word');
+var { Word, NN, Vpast, Vinf, JJ} = require('./word');
 
 grammar.addModifiers(tracery.baseEngModifiers);
 
@@ -13,12 +13,6 @@ class Stanza {
     constructor() {
         this.sentences = [];
         this.verses = [[],[]];
-
-        // this.universyll = ['bla', 'tel', 'man', 'xome'];
-        this.universyll = ['ju', 'lia', 'ma', 'lin', 'ska'];
-        // this.JJsyll = ['thy', 'ish', '_ish', '_ious', '_al', 'xome'];
-        this.JJsyll = ['thy', 'ish', 'mious', 'pal', 'xome'];
-        this.Vpastsyll = ['_ed'];
     }
 
     initStanza() {
@@ -48,7 +42,7 @@ class Stanza {
             for (var j = 0; j < 2; j++) {
                 this.verses[i][j] = {
                     verseStr: '',
-                    verseStrFill: this.verseStr, //-----------hm
+                    verseStrFill: this.verseStr,
                     metre: 0,
                     toDistLen: 0,
                     syllDist: [],
@@ -185,43 +179,36 @@ class Stanza {
 
     distSyll(senID) {
         //for each blank
-        //add universyll (un until the last?)
         var verse = this.verses[senID][0];
         var blanks = verse.blanks();
         var fills = verse.fills;
 
         for (var i=0; i<blanks.length; i++) { //each blank
             var word = '';
-            // for (var j=0; j<verse.syllDist[i]-1; j++) { //each syllable in blank
-            //     var syll = this.getRandomSyll(this.universyll);
-            //     word = word.concat('', syll);
-            // }
-            // var last = '';
-            // var w;
+            var w = null;
+
             switch(blanks[i]) { //make separate
                 case '_JJ':
-                // last = this.getRandomSyll(this.JJsyll);
                 var w = new JJ(verse.syllDist[i]);
-                word = w.concatWord();
-                word = w.fillWord(word); 
                 break;
 
                 case '_Vpast':
                 var w = new Vpast(verse.syllDist[i]);
-                word = w.concatWord();
-                word = w.fillWord(word); 
                 break;
 
                 case '_NN':
-                var w = new NN(verse.syllDist[i]);
-                word = w.concatWord();
-                word = w.fillWord(word); 
+                var w = new NN(verse.syllDist[i], true);
+                break;
+
+                case '_NNpl':
+                var w = new NN(verse.syllDist[i], false);
                 break;
 
                 default:
-                word = this.getRandomSyll(this.universyll);
+                w = new Word(verse.syllDist[i]);
             }
-            // word = word.concat('', last);
+            word = w.concatWord();
+            word = w.fillWord(word); 
             
             fills[i] = word;
 
@@ -270,23 +257,7 @@ for (var verse in s.verses[1]) {
 }
 
 //--------------------------------------------------------------
-var string = 'The dog _Vpast. ';
-
-// console.log('');
-// for (let i = 0; i < 10; i++) {
-//     var pult = string.replace(/_Vpast/, word.word.getWord('_Vpast', 1));
-//     console.log('STR: '+pult);
-// }
-
-// var newWord = word.word.getWord('_Vpast', 1);
-// console.log('\n'+newWord);
-
-// var n = new NN(1);
-// newWord = n.concatWord();
-// newWord = n.fillWord(newWord);
-
-// var v = new Vpast(3);
-var j = new JJ(2);
+var j = new Vpast(1);
 
 console.log();
 for (let i = 0; i < 10; i++) {
@@ -294,4 +265,3 @@ for (let i = 0; i < 10; i++) {
     newWord = j.fillWord(newWord);
     console.log('NEW: '+newWord);
 }
-
