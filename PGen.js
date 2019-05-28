@@ -5,7 +5,7 @@ var grammar_file = require('./JabberGrammar_test01.json');
 var grammar = tracery.createGrammar(grammar_file);
 
 // var word = require('./wordo');
-var { Word, NN, Vpast, Vinf, JJ} = require('./word');
+var { Word, NN, Verb, Vpast, Vinf, JJ} = require('./word');
 
 grammar.addModifiers(tracery.baseEngModifiers);
 
@@ -18,18 +18,45 @@ class Stanza {
     initStanza() {
         this.initVerses();
 
-        //while not rhyme compatible        
-        this.generateSentences();
-        this.getLast();
-        // this.rhymeCheck();
-        console.log(this.rhymeCheck());
-        //------------------------------rhyme check
+        //while not rhyme compatible 
+        var isRhymeCompatible = false;
+        while (!isRhymeCompatible) {
+            this.generateSentences();
+            this.getLast();
+            isRhymeCompatible = this.rhymeCheck();
+        }
 
         this.getSyllDist(0);
         this.distSyll(0);
         
         
-        this.replaceBlanks(0);
+        this.replaceBlanks(0); //to string
+    }
+
+    initVerses() {
+        for (var i = 0; i < 2; i++) {
+            for (var j = 0; j < 2; j++) {
+                this.verses[i][j] = {
+                    verseStr: '',
+                    verseStrFill: this.verseStr,
+                    metre: 0,
+                    toDistLen: 0,
+                    syllDist: [],
+                    words: function() {
+                        return this.verseStr.match(/\w+/g);
+                    },
+                    blanks: function() {
+                        return this.verseStr.match(/_\w+/g);
+                    },
+                    fills: [],
+                    last: ''
+                }
+            }
+        }
+        this.verses[0][0].metre = 8;
+        this.verses[0][1].metre = 8;
+        this.verses[1][0].metre = 8;
+        this.verses[1][1].metre = 6;
     }
 
     generateSentences() {
@@ -78,32 +105,6 @@ class Stanza {
             }
         }
         return true;
-    }
-
-    initVerses() {
-        for (var i = 0; i < 2; i++) {
-            for (var j = 0; j < 2; j++) {
-                this.verses[i][j] = {
-                    verseStr: '',
-                    verseStrFill: this.verseStr,
-                    metre: 0,
-                    toDistLen: 0,
-                    syllDist: [],
-                    words: function() {
-                        return this.verseStr.match(/\w+/g);
-                    },
-                    blanks: function() {
-                        return this.verseStr.match(/_\w+/g);
-                    },
-                    fills: [],
-                    last: ''
-                }
-            }
-        }
-        this.verses[0][0].metre = 8;
-        this.verses[0][1].metre = 8;
-        this.verses[1][0].metre = 8;
-        this.verses[1][1].metre = 6;
     }
 
     sentenceSplit(senID) {
@@ -248,6 +249,10 @@ class Stanza {
                 var w = new NN(verse.syllDist[i], false);
                 break;
 
+                case '_Vinf':
+                var w = new Vinf(verse.syllDist[i]);
+                break;
+
                 default:
                 w = new Word(verse.syllDist[i]);
             }
@@ -255,9 +260,6 @@ class Stanza {
             word = w.fillWord(word); 
             
             fills[i] = word;
-
-            console.log(fills);
-            console.log(verse.syllDist);
         }
     }
     
@@ -275,7 +277,6 @@ class Stanza {
         var string = verse.verseStr;
         var fills = verse.fills;
         var strFill = verse.verseStrFill;
-        console.log('FILLS: '+fills);
         
         var i=0;
         var re = RegExp(/_\w+/g);
@@ -301,18 +302,13 @@ for (var verse in s.verses[1]) {
 }
 
 //--------------------------------------------------------------
-var j = new Vinf(3);
+var j = new Vinf(1);
 
 console.log();
 for (let i = 0; i < 10; i++) {
-    newWord = j.concatWord();
+    newWord = j.concatWord(false);
     newWord = j.fillWord(newWord);
     console.log('NEW: '+newWord);
 }
 
-var a = '_NN';
-var b = '_NN';
-
-if (a == b) {
-    console.log('YIS');
-}
+// console.log(s.verses[0][0].blanks())
