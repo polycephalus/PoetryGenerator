@@ -18,7 +18,25 @@ class Stanza {
     initStanza() {
         this.initVerses();
 
-        //just the 1st sentence for now
+        this.generateSentences();
+        // for (let i = 0; i < array.length; i++) {
+        //     const element = array[i];
+            
+        // }
+        this.getLast();
+
+
+        // console.log('\n----------------'+this.verses[0][0].words()[1])
+        // var a1 = this.verses[0][0].words();
+
+
+        this.getSyllDist(0);
+        this.distSyll(0);
+        
+        this.replaceBlanks(0);
+    }
+
+    generateSentences() {
         //ltr: checking rhyme compatibility
         for (let i = 0; i < 2; i++) {
             var found = false;
@@ -31,10 +49,17 @@ class Stanza {
                 }
             }
         }
-        this.getSyllDist(0);
-        this.distSyll(0);
+    }
 
-        this.replaceBlanks(0);
+    getLast() {
+        for (let i = 0; i < this.verses.length; i++) {
+            for (let j = 0; j < 2; j++) {
+                var verse = this.verses[i][j];
+                var len = verse.words().length;
+                verse.last = verse.words()[len-1]; //last word of line 
+            }
+            
+        }
     }
 
     initVerses() {
@@ -52,7 +77,8 @@ class Stanza {
                     blanks: function() {
                         return this.verseStr.match(/_\w+/g);
                     },
-                    fills: []
+                    fills: [],
+                    last: ''
                 }
             }
         }
@@ -257,11 +283,18 @@ for (var verse in s.verses[1]) {
 }
 
 //--------------------------------------------------------------
-var j = new Vpast(1);
+var j = new Vinf(3);
 
 console.log();
 for (let i = 0; i < 10; i++) {
     newWord = j.concatWord();
     newWord = j.fillWord(newWord);
     console.log('NEW: '+newWord);
+}
+
+var a = '_NN';
+var b = '_NN';
+
+if (a == b) {
+    console.log('YIS');
 }
