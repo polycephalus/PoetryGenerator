@@ -26,11 +26,13 @@ class Stanza {
             isRhymeCompatible = this.rhymeCheck();
         }
 
-        this.getSyllDist(0);
-        this.distSyll(0);
-        
-        
-        this.replaceBlanks(0); //to string
+        for (var i = 0; i < 2; i++) {
+            for (var j = 0; j < 2; j++) {
+                this.getSyllDist(i, j);
+                this.distSyll(i, j);
+                this.replaceBlanks(i, j); //to string
+            }   
+        }
     }
 
     initVerses() {
@@ -49,7 +51,9 @@ class Stanza {
                         return this.verseStr.match(/_\w+/g);
                     },
                     fills: [],
-                    last: ''
+                    skeleton: '',
+                    lastPOS: '',
+                    last: '' //POS last
                 }
             }
         }
@@ -79,7 +83,7 @@ class Stanza {
             for (let j = 0; j < 2; j++) {
                 var verse = this.verses[i][j];
                 var len = verse.words().length;
-                verse.last = verse.words()[len-1]; //last word of line 
+                verse.lastPOS = verse.words()[len-1]; //last word of line 
             }
         }
     }
@@ -89,8 +93,8 @@ class Stanza {
         // - all POS with themselves
         // - _NN with _Vinf or _Vpast
         for (let i = 0; i < 2; i++) {
-            var w1 = this.verses[0][i].last
-            var w2 = this.verses[1][i].last
+            var w1 = this.verses[0][i].lastPOS
+            var w2 = this.verses[1][i].lastPOS
         
             if (
                 w1 == w2 ||
@@ -194,10 +198,10 @@ class Stanza {
     }
 
     //change to 'getSyllDist'?
-    getSyllDist(senID) {
+    getSyllDist(senID, verID) {
         //distribution of syllabes across blanks
-        var verse = this.verses[senID][0];
-        var blanks = this.verses[senID][0].blanks();
+        var verse = this.verses[senID][verID];
+        var blanks = this.verses[senID][verID].blanks();
         var re = RegExp(/_JJ|_Vinf/); //min 2 syll -should be in Stanza class?
 
         //min dist-------------------
@@ -222,9 +226,9 @@ class Stanza {
         }
     }
 
-    distSyll(senID) {
+    distSyll(senID, verID) {
         //for each blank
-        var verse = this.verses[senID][0];
+        var verse = this.verses[senID][verID];
         var blanks = verse.blanks();
         var fills = verse.fills;
 
@@ -257,7 +261,12 @@ class Stanza {
                 w = new Word(verse.syllDist[i]);
             }
             word = w.concatWord();
-            word = w.fillWord(word); 
+            word = w.fillWord(word);
+
+            if (i == blanks.length-1) { //storing blank last word of verse, last syll
+                verse.last = w.lastproto;
+                verse.skeleton = w.getBlank();
+            }
             
             fills[i] = word;
         }
@@ -272,8 +281,8 @@ class Stanza {
         return syll;
     }
 
-    replaceBlanks(senID) {
-        var verse = this.verses[senID][0];
+    replaceBlanks(senID, verID) {
+        var verse = this.verses[senID][verID];
         var string = verse.verseStr;
         var fills = verse.fills;
         var strFill = verse.verseStrFill;
@@ -288,6 +297,36 @@ class Stanza {
             return word;
         }
         console.log(strFill);
+    }
+
+    rhyme() {
+        var A1 = this.verses[0][0]; //loop in the final ver
+        var B1 = this.verses[0][1];
+        var A2 = this.verses[1][0];
+        var B2 = this.verses[1][1];
+
+        var w = new Word();
+
+        
+        if (A1.lastPOS == A2.lastPOS) {
+            //get blank word (skeleton || call w.getBlank())
+            //slice off last syll, replace w/last syll of other
+            var blank = A2.skeleton;
+            var last_syll = A2.last;
+
+            var new_word = blank.slice(0, -last_syll.length);
+
+            console.log('\n-----------\n:'+blank);
+            console.log(':'+last_syll);
+            console.log(':'+new_word);
+
+        }
+        //the other: remove from back of string len of lastproto
+        //add dom proto
+        //fillWord
+        console.log(A1.lastPOS);
+
+        //dom/sub POS: Vinf --> NN
     }
 }
 
@@ -312,3 +351,5 @@ for (let i = 0; i < 10; i++) {
 }
 
 // console.log(s.verses[0][0].blanks())
+
+s.rhyme();

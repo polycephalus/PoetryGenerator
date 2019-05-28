@@ -2,21 +2,26 @@ class Word {
     constructor(syllnum) {
         this.syllnum = syllnum;
         this.lastproto = '';
+        this.blank = '';
 
         this.vowels = ['a', 'e', 'i', 'o', 'u', 'ou', 'oi'];
         this.consonants = ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v'];
 
         this.digraphs = ['st', 'ch', 'sh', 'ph', 'fr', 'fl', 'gr']; //_d
-        this.connectors = ['bb', 'st', 'rw', 'kv', 'sw', 'sc', 'fr', 'fl', 'mp', 'dr']; //_c_c
+        this.connectors = ['bb', 'st', 'kv', 'sw', 'sc', 'fr', 'fl', 'mp', 'dr']; //_c_c
         this.diultim = ['ck', 'st', 'ch', 'sh', 'ff', 'ph', 'sc', 'gh', 'ff']; //_u
 
         this.trigraphs = ['rtl'] //_u_c
 
         this.protosyll = [
-            ['_c_v_u', '_c_vng', '_cill', '_cetch', '_c_vrn'], //wock  
+            ['_c_vng', '_cill', '_cetch', '_c_vrn'], //wock  '_c_v_u', 
             ['_v_c', '_c_v'], //er
             ['_c_v_d'] //jabb
         ];
+    }
+
+    getBlank() {
+        return this.blank;
     }
 
     getRand(arr) {
@@ -34,6 +39,8 @@ class Word {
             if (i == 0) this.lastproto = proto;
         }
         // console.log(word);
+        this.blank = word;
+
         return word;
     }
 
@@ -75,11 +82,13 @@ class NN extends Word{
         this.protosyll[1] = ['_v_c'];
     }
 
-    concatWord() {
+    concatWord(isRhyme, syll) {
         if(!this.isSingular) {
             this.protosyll[0] = ['_c_vves', '_vbles', '_c_vps', '_c_vts'];
         }
         var word = super.concatWord();
+        this.blank = word;
+
         return word;
     }
 }
@@ -134,6 +143,7 @@ class Vpast extends Verb {
 
         this.lastproto = lastproto;
         word = word.concat('', lastproto);
+        this.blank = word;
 
         return word;
     }
@@ -146,7 +156,9 @@ class Vinf extends Verb {
 
     concatWord() {
         var word = super.concatWord();
-        word = word.concat('', this.getRand(this.protosyll[0]));
+        this.lastproto = this.getRand(this.protosyll[0])
+        word = word.concat('', this.lastproto);
+        this.blank = word;
 
         return word;
     }
