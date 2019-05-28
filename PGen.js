@@ -18,20 +18,16 @@ class Stanza {
     initStanza() {
         this.initVerses();
 
+        //while not rhyme compatible        
         this.generateSentences();
-        // for (let i = 0; i < array.length; i++) {
-        //     const element = array[i];
-            
-        // }
         this.getLast();
-
-
-        // console.log('\n----------------'+this.verses[0][0].words()[1])
-        // var a1 = this.verses[0][0].words();
-
+        // this.rhymeCheck();
+        console.log(this.rhymeCheck());
+        //------------------------------rhyme check
 
         this.getSyllDist(0);
         this.distSyll(0);
+        
         
         this.replaceBlanks(0);
     }
@@ -58,8 +54,30 @@ class Stanza {
                 var len = verse.words().length;
                 verse.last = verse.words()[len-1]; //last word of line 
             }
-            
         }
+    }
+
+    rhymeCheck() {
+        //valid rhymes: 
+        // - all POS with themselves
+        // - _NN with _Vinf or _Vpast
+        for (let i = 0; i < 2; i++) {
+            var w1 = this.verses[0][i].last
+            var w2 = this.verses[1][i].last
+        
+            if (
+                w1 == w2 ||
+                (w1 == '_NN' && w2 == '_Vinf') || 
+                (w1 == '_NN' && w2 == '_Vpast') ||
+                (w1 == '_Vinf' && w2 == '_NN') || 
+                (w1 == '_Vpast' && w2 == '_NN')
+            ) {
+                continue;
+            } else { 
+                return false;
+            }
+        }
+        return true;
     }
 
     initVerses() {
