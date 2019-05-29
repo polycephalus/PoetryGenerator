@@ -30,9 +30,12 @@ class Stanza {
             for (var j = 0; j < 2; j++) {
                 this.getSyllDist(i, j);
                 this.distSyll(i, j);
-                this.replaceBlanks(i, j); //to string
+                
+                // this.replaceBlanks(i, j); //to string
             }   
         }
+
+        this.rhyme();
     }
 
     initVerses() {
@@ -102,6 +105,8 @@ class Stanza {
                 (w1 == '_NN' && w2 == '_Vpast') ||
                 (w1 == '_Vinf' && w2 == '_NN') || 
                 (w1 == '_Vpast' && w2 == '_NN')
+                // (w1 == '_NN'|| '_NNpl' && w2 == '_Vinf' || '_Vpast') ||
+                // (w1 == '_Vinf' || '_Vpast' && w1 == '_NN' || '_NNpl')
             ) {
                 continue;
             } else { 
@@ -296,60 +301,107 @@ class Stanza {
             var word = fills[i++];
             return word;
         }
-        console.log(strFill);
+        verse.verseStrFill = strFill;
+        // console.log(strFill);
     }
 
     rhyme() {
-        var A1 = this.verses[0][0]; //loop in the final ver
-        var B1 = this.verses[0][1];
-        var A2 = this.verses[1][0];
-        var B2 = this.verses[1][1];
+        for (let i = 0; i < 2; i++) {
+            var V1 = this.verses[0][i];
+            var V2 = this.verses[1][i];
 
-        var w = new Word();
+            var w = new Word(0);
 
-        
-        if (A1.lastPOS == A2.lastPOS) {
-            //get blank word (skeleton || call w.getBlank())
-            //slice off last syll, replace w/last syll of other
-            var blank = A2.skeleton;
-            var last_syll = A2.last;
+            if (V1.lastPOS == V2.lastPOS) {
+                //get blank word (skeleton || call w.getBlank())
+                //slice off last syll, replace w/last syll of other
+                var blank = V2.skeleton;
+                var last_syll = V2.last;
 
-            var new_word = blank.slice(0, -last_syll.length);
+                var new_word = blank.slice(0, -last_syll.length);
+                var new_word = new_word.concat('', V1.last);
+                var new_word = w.fillWord(new_word);
 
-            console.log('\n-----------\n:'+blank);
-            console.log(':'+last_syll);
-            console.log(':'+new_word);
+                this.verses[1][i].fills[V2.fills.length-1] = new_word;
 
+            } else if (V1.lastPOS == '_NN') {
+                var new_words = swap(V2, V1);
+                this.verses[0][i].fills[V1.fills.length-1] = new_words[0];
+                if (new_words[1]) {
+                    this.verses[1][i].fills[V2.fills.length-1] = new_words[1];
+                }
+
+            } else if (V2.lastPOS == '_NN') {
+                var new_words = swap(V1, V2);
+                this.verses[1][i].fills[V2.fills.length-1] = new_words[0];
+                if (new_words[1]) {
+                    this.verses[0][i].fills[V1.fills.length-1] = new_words[1];
+                }
+            }
+
+            function swap(dominant, recessive) {
+                var other_new_word; //undef
+                
+                //if Vpast gen new
+                if (dominant.lastPOS == '_Vpast') {
+                    var v = new Vpast(1);
+                    v.concatWord(true);
+                    var new_last = v.getBlank();
+                    var dom_old = dominant.skeleton;
+                    var dom_old_last = dominant.last;
+                    var dom_new = dom_old.slice(0, -dom_old_last.length);
+                    var dom_new = dom_new.concat('', new_last);
+                    console.log('FLAG-------------------');
+                    console.log(dom_old);
+                    console.log(dom_old_last);
+                    console.log(new_last);
+                    console.log(dom_new);
+                    other_new_word = v.fillWord(dom_new);
+                } else {
+                    var new_last = dominant.last;
+                }
+
+                var new_word = recessive.skeleton;
+                var old_last = recessive.last;
+
+                new_word = new_word.slice(0, -old_last.length);
+                new_word = new_word.concat('', new_last);
+                new_word = new_word.replace(/_dew/g, '_cue');
+                new_word = new_word.replace(/_d/g, '_c');
+                // console.log(new_word);
+                new_word = w.fillWord(new_word);
+                // console.log('new: '+new_word);
+
+                var new_words = [new_word, other_new_word]
+
+                return new_words;
+            }
+            
+            this.replaceBlanks(0, i);
+            this.replaceBlanks(1, i);
         }
-        //the other: remove from back of string len of lastproto
-        //add dom proto
-        //fillWord
-        console.log(A1.lastPOS);
-
-        //dom/sub POS: Vinf --> NN
     }
 }
 
 var s = new Stanza();
 s.initStanza();
 
+
 for (var verse in s.verses[0]) {
-    console.log(s.verses[0][verse].verseStr);
+    console.log(s.verses[0][verse].verseStrFill);
 }
 for (var verse in s.verses[1]) {
-    console.log(s.verses[1][verse].verseStr);
+    console.log(s.verses[1][verse].verseStrFill);
 }
 
 //--------------------------------------------------------------
-var j = new Vinf(1);
+// var j = new Vinf(1);
 
-console.log();
-for (let i = 0; i < 10; i++) {
-    newWord = j.concatWord(false);
-    newWord = j.fillWord(newWord);
-    console.log('NEW: '+newWord);
-}
+// console.log();
+// for (let i = 0; i < 10; i++) {
+//     newWord = j.concatWord(false);
+//     newWord = j.fillWord(newWord);
+//     console.log('NEW: '+newWord);
+// }
 
 // console.log(s.verses[0][0].blanks())
-
-s.rhyme();

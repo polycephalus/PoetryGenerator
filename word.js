@@ -14,8 +14,8 @@ class Word {
         this.trigraphs = ['rtl'] //_u_c
 
         this.protosyll = [
-            ['_c_vng', '_cill', '_cetch', '_c_vrn'], //wock  '_c_v_u', 
-            ['_v_c', '_c_v'], //er
+            ['_cing', '_cill', '_cetch', '_curn', '_cock'], //wock  '_c_v_u', '_c_vng'
+            ['_v_c', '_c_v'], //er 
             ['_c_v_d'] //jabb
         ];
     }
@@ -152,6 +152,7 @@ class Vpast extends Verb {
 class Vinf extends Verb {
     constructor(syllnum) {
         super(syllnum);
+        this.protosyll[0] = ['_cill', '_cetch', '_curn', '_cock'];
     }
 
     concatWord() {
