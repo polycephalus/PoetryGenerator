@@ -355,11 +355,6 @@ class Stanza {
                     var dom_old_last = dominant.last;
                     var dom_new = dom_old.slice(0, -dom_old_last.length);
                     var dom_new = dom_new.concat('', new_last);
-                    console.log('FLAG-------------------');
-                    console.log(dom_old);
-                    console.log(dom_old_last);
-                    console.log(new_last);
-                    console.log(dom_new);
                     other_new_word = v.fillWord(dom_new);
                 } else {
                     var new_last = dominant.last;
@@ -385,27 +380,22 @@ class Stanza {
             this.replaceBlanks(1, i);
         }
     }
-}
 
-var s = new Stanza();
-s.initStanza();
+    getStanza() {
 
-
-for (var verse in s.verses[0]) {
-    console.log(s.verses[0][verse].verseStrFill);
-}
-for (var verse in s.verses[1]) {
-    console.log(s.verses[1][verse].verseStrFill);
+    }
 }
 
 //--------------------------------------------------------------
-var j = new NN(3, false);
+// var j = new JJ(3);
 
-console.log();
-for (let i = 0; i < 10; i++) {
-    newWord = j.concatWord();
-    newWord = j.fillWord(newWord);
-    console.log('NEW: '+newWord);
-}
+// console.log();
+// for (let i = 0; i < 10; i++) {
+//     newWord = j.concatWord();
+//     newWord = j.fillWord(newWord);
+//     console.log('NEW: '+newWord);
+// }
 
 // console.log(s.verses[0][0].blanks())
+
+module.exports = Stanza;
