@@ -8,15 +8,15 @@ class Word {
         this.consonants = ['b', 'd', 'f', 'g', 'm', 'n', 'p', 'r', 's', 't', 'v'];
 
         this.digraphs = ['st', 'ch', 'sh', 'ph', 'fr', 'fl', 'gr']; //_d
-        this.connectors = ['bb', 'st', 'kv', 'sw', 'sc', 'fr', 'fl', 'mp', 'dr']; //_c_c
+        this.connectors = ['bb', 'st', 'kv', 'sc', 'fr', 'fl', 'mp', 'dr']; //_c_c 'sw'
         this.diultim = ['ck', 'st', 'ch', 'sh', 'ff', 'ph', 'sc', 'gh', 'ff']; //_u
 
         this.trigraphs = ['rtl'] //_u_c
 
         this.protosyll = [
-            ['_cing', '_cill', '_cetch', '_curn', '_cock'], //wock  '_c_v_u', '_c_vng'
-            ['_v_c', '_c_v'], //er 
-            ['_c_v_d'] //jabb
+            ['_cing', '_cill', '_cetch', '_curn', '_cock'],
+            ['_c_v_c'], // '_v_c', '_c_v', 
+            ['_c_v_c']
         ];
     }
 
@@ -79,12 +79,13 @@ class NN extends Word{
     constructor(syllnum, isSingular) {
         super(syllnum);
         this.isSingular = isSingular;
-        this.protosyll[1] = ['_v_c'];
+        this.protosyll[1] = ['_c_v', '_c_v'];
     }
 
-    concatWord(isRhyme, syll) {
+    concatWord() {
         if(!this.isSingular) {
-            this.protosyll[0] = ['_c_vves', '_vbles', '_c_vps', '_c_vts'];
+            this.protosyll[0] = ['_c_vves', '_caps', '_cits'];
+            if (this.syllnum>1) this.protosyll[0].push('bles');
         }
         var word = super.concatWord();
         this.blank = word;

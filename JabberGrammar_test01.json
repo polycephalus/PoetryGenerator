@@ -1,25 +1,32 @@
 {
   "ES": [
     "#S.capitalize#.",
+    "#S.capitalize#.",
+    "#S.capitalize# and #S#.",
     "#S.capitalize# and #S#.",
     "O #S#!",
-    "O _JJ _NN! #S.capitalize#"
+    "O _JJ _NN! #S.capitalize#.",
+    "#NP# that _vinf! #NP# that _vinf!",
+    "_Vinf #NP#, my #NN#! #S.capitalize#.",
+    "_Vinf #NP#, my #NN#! #S.capitalize#."
   ],
   "S": [
     "#NP# #VP#",
-    "twas #NN#, and #NP# #VP#",
-    "all _JJ were #NPpl#"
+    "#NP# #VP#",
+    "twas _NN, and #NP# #VP#",
+    "all _JJ were #NNpl#"
   ],
   "NP": [
     "the #NN#",
     "the _JJ #NN#"
   ],
-  "NPpl": [
+  "NNpl": [
     "the _NNpl", 
     "the _JJ _NNpl"
   ],
   "NN": [
-    "_NN"
+    "_NN", 
+    "_NNpl"
   ],
   "VP": [
     "#V##PP#",

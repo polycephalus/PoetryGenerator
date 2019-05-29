@@ -117,7 +117,7 @@ class Stanza {
     }
 
     sentenceSplit(senID) {
-        var poss_splits = this.sentences[senID].split(/ (?=and the|did|in the)/g);
+        var poss_splits = this.sentences[senID].split(/ (?=and the|did|in the|Twas)/g);
         var min_syll = []; //min amount of syllables per split
 
         poss_splits.forEach(split => {
@@ -301,7 +301,11 @@ class Stanza {
             var word = fills[i++];
             return word;
         }
-        verse.verseStrFill = strFill;
+
+        function toUpper(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1); 
+        }
+        verse.verseStrFill = toUpper(strFill);
         // console.log(strFill);
     }
 
@@ -395,13 +399,13 @@ for (var verse in s.verses[1]) {
 }
 
 //--------------------------------------------------------------
-// var j = new Vinf(1);
+var j = new NN(3, false);
 
-// console.log();
-// for (let i = 0; i < 10; i++) {
-//     newWord = j.concatWord(false);
-//     newWord = j.fillWord(newWord);
-//     console.log('NEW: '+newWord);
-// }
+console.log();
+for (let i = 0; i < 10; i++) {
+    newWord = j.concatWord();
+    newWord = j.fillWord(newWord);
+    console.log('NEW: '+newWord);
+}
 
 // console.log(s.verses[0][0].blanks())
